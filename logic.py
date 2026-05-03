@@ -147,6 +147,15 @@ class Minesweeper:
                     else:
                         self.screen.blit(self.cfg.NUMBER_SPRITES[cell.neighbor_mines], (x, y))
 
+    def draw_header(self):
+        pygame.draw.rect(self.screen, self.cfg.Colors.COLOR_BG, (0, 0, self.cfg.SCREEN_WIDTH, self.cfg.HEADER_HEIGHT))
+        pygame.draw.rect(self.screen, self.cfg.Colors.COLOR_DARK,  (0, 0, self.cfg.SCREEN_WIDTH, self.cfg.HEADER_HEIGHT), 3)
+
+        # Timer
+        if self.start_ticks and self.state == self.cfg.STATE_PLAYING:
+            self.time = (pygame.time.get_ticks() - self.start_ticks) // 1000
+        timer_text = self.font_big.render(f"{min(self.time, 999):03d}", True, (255, 0, 0))
+        self.screen.blit(timer_text, (self.cfg.SCREEN_WIDTH - 60, 15))
 
 
     def run(self):
@@ -168,6 +177,7 @@ class Minesweeper:
                         if self.first_click:
                             self.first_click = False
                             self.place_mines(row, col)
+                            self.start_ticks = pygame.time.get_ticks()
                         cell = self.grid[row][col]
                         if cell.is_revealed:
                             self.chord(row, col)
@@ -180,5 +190,7 @@ class Minesweeper:
 
 
             self.screen.fill(self.cfg.Colors.COLOR_BG)
+            self.draw_header()
             self.draw_grid()
             pygame.display.flip()
+            self.clock.tick(60)
